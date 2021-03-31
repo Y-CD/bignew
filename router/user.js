@@ -65,8 +65,22 @@ router.post('/userinfo', (req, res) => {
 
 // 上传头像接口
 router.post('/uploadPic', upload.single('file_data'), (req, res) => {
+    const { id } = req.body;
     // 获取上传的文件信息 文件信息保存在req.file 里面
     // console.log(req.file);
+    // 成功后根据id修改用户的头像
+    // 拼接sql语句
+    const sqlStr = `update users set userPic="http://127.0.0.1:8080/uploads/${req.file.originalname}" where id=${id}`;
+    // console.log(sqlStr);
+    // 执行sql
+    conn.query(sqlStr, (err, result) => {
+
+        if (err) {
+            res.json({ status: 1, message: '服务器错误' });
+            return;
+        }
+
+    });
     // 上传成功
     res.json({ status: 0, message: '上传图片成功', src: 'http://127.0.0.1:8080/uploads/' + req.file.originalname });
 });
