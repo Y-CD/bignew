@@ -9,6 +9,10 @@ const jwt = require('express-jwt');
 const server = express();
 // 使用cors
 server.use(cors());
+
+// 静态托管文件
+server.use('/uploads', express.static('uploads'));
+
 // server.use(jwt().unless());
 // jwt() 用于解析token，并将 token 中保存的数据 赋值给 req.user
 // unless() 约定某个接口不需要身份认证
