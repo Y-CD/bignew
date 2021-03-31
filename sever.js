@@ -30,7 +30,7 @@ const articleRouter = require('./router/article.js');
 // 使用
 server.use('/api', apiRouter);
 server.use('/my', userRouter);
-server.use('/my', articleRouter);
+server.use('/my/article', articleRouter);
 
 // 统一处理 没有token登录的情况 返回401错误
 server.use((err, req, res, next) => {
