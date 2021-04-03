@@ -66,16 +66,16 @@ router.post('/userinfo', (req, res) => {
 
 // 上传头像接口
 router.post('/uploadPic', upload.single('file_data'), (req, res) => {
-    const { id } = req.body;
+    const { id, username } = req.body;
     // 获取上传的文件信息 文件信息保存在req.file 里面
     // console.log(req.file);
     // 成功后根据id修改用户的头像
     // 拼接sql语句
-    const sqlStr = `update users set userPic="http://127.0.0.1:8080/uploads/${req.file.originalname}" where id=${id}`;
+    const sqlStr = `update users set userPic="http://127.0.0.1:8080/uploads/${req.file.originalname}" where id=${id} or username="${username}"`;
     // console.log(sqlStr);
     // 执行sql
     conn.query(sqlStr, (err, result) => {
-        // console.log(result);
+        console.log(result);
         // console.log(err);
         if (err) {
             res.status(500).json({ code: 500, message: '服务器错误' });

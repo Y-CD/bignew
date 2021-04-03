@@ -156,5 +156,44 @@ router.get('/attention', (req, res) => {
     });
 });
 
+// 文章详细内容接口
+router.get('/artitle', (req, res) => {
+    // 接收参数 要查询的文章的id
+    // console.log(req.query);
+    const { id } = req.query;
+    // 拼接sql语句
+    const sqlStr = `select * from articles where id="${id}"`;
+    // 执行sql
+    conn.query(sqlStr, (err, result) => {
+        console.log(err);
+        if (err) {
+            res.status(500).json({ code: 500, message: '服务器错误' });
+            return
+        }
+        const sqlStr2 = `select id, title from articles where id="${id - 1}"`;
+        conn.query(sqlStr2, (err, result2) => {
+            if (err) {
+                res.status(500).json({ code: 500, message: '服务器错误' });
+                return
+            }
+            // console.log(result2);
+            result[0].prev = result2[0];
+            // console.log(result);
+            const sqlStr3 = `select id, title from articles where id="${parseInt(id) + 1}"`;
+            console.log(sqlStr3);
+            conn.query(sqlStr3, (err, result3) => {
+                if (err) {
+                    res.status(500).json({ code: 500, message: '服务器错误' });
+                    return
+                }
+                // console.log(result3);
+                result[0].next = result3[0];
+                res.json({ code: 200, message: '获取成功', data: result });
+            });
+        });
+    });
+});
+
+
 // 导出路由中间件
 module.exports = router;
