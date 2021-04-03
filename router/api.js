@@ -21,13 +21,13 @@ router.post('/reguser', (req, res) => {
     conn.query(sqlStr2, (err, result) => {
         // console.log(err);
         if (err) {
-            res.json({ status: 1, message: '服务器错误' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
         // console.log(result);
         // 判断 如果result的长度大于0 就是用户名已经存在
         if (result.length > 0) {
-            res.json({ status: 1, message: '用户名已经存在' });
+            res.json({ code: 201, message: '用户名已经存在' });
             return;
         }
         // 拼接sql语句
@@ -35,10 +35,10 @@ router.post('/reguser', (req, res) => {
         // console.log(sqlStr);
         conn.query(sqlStr, (err, result) => {
             if (err) {
-                res.json({ status: 1, message: '注册失败' });
+                res.json({ code: 201, message: '注册失败' });
                 return;
             }
-            res.json({ status: 0, message: '注册成功' });
+            res.json({ code: 200, message: '注册成功' });
         });
     });
 
@@ -47,7 +47,7 @@ router.post('/reguser', (req, res) => {
 // 登录接口
 router.post('/login', (req, res) => {
     // 获取用户传入的参数
-    // console.log(req.body);
+    console.log(req.body);
     const { username, password } = req.body;
     // 拼接sql语句 查询 用户输入的用户名是否存在 密码是否正确
     const sqlStr = `select username, password from users where username="${username}" and password="${password}"`;
@@ -56,19 +56,20 @@ router.post('/login', (req, res) => {
     conn.query(sqlStr, (err, result) => {
         // console.log(err);
         if (err) {
-            res.json({ status: 1, message: '登录失败' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
-        console.log(result);
+        // console.log(result);
         // 判断查询到的用户名或者密码存不存在
-        if (result.length > 0) {
-            // 调用生成 token 的方法 第二个参数是秘钥 验证的时候要用 第三个参数是token的有效时间 单位是秒
-            const tokenStr = jwt.sign({ name: username }, 'gz61', { expiresIn: 2 * 60 * 60 });
-            const token = 'Bearer ' + tokenStr
-            res.json({ status: 0, message: '登录成功', token });
-        } else if (result) {
-            res.json({ status: 1, message: '登录失败，用户名不存在，或者密码不正确' });
+        if (!result) {
+            res.json({ code: 201, message: '登录失败，用户名不存在，或者密码不正确' });
+            return;
         }
+        // 调用生成 token 的方法 第二个参数是秘钥 验证的时候要用 第三个参数是token的有效时间 单位是秒
+        const tokenStr = jwt.sign({ name: username }, 'gz61', { expiresIn: 2 * 60 * 60 });
+        const token = 'Bearer ' + tokenStr
+        res.json({ code: 200, message: '登录成功', token, data: result[0] });
+
     });
 });
 

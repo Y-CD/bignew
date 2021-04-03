@@ -28,7 +28,7 @@ let upload = multer({ storage })
 // 获取用户基本信息的接口
 router.get('/userinfo', (req, res) => {
     // 获取用户传入的参数 get方式的参数在req.query中
-    // console.log(req.query);
+    console.log(req.query);
     const { username } = req.query;
     // 拼接sql语句
     const sqlStr = `select * from users where username="${username}"`;
@@ -37,12 +37,12 @@ router.get('/userinfo', (req, res) => {
     conn.query(sqlStr, (err, result) => {
         // 错误
         if (err) {
-            res.json({ status: 1, message: '获取用户信息失败！' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
         // 成功
         // console.log(result);
-        res.json({ status: 0, message: '获取用户信息成功', data: result });
+        res.json({ code: 200, message: '获取用户信息成功', data: result[0] });
     });
 });
 
@@ -55,11 +55,12 @@ router.post('/userinfo', (req, res) => {
     const sqlStr = `update users set nickname="${nickname}", email="${email}", userPic="${userPic}" where id=${id}`;
     // 执行sql
     conn.query(sqlStr, (err, result) => {
+        // console.log(err);
         if (err) {
-            res.json({ status: 1, message: '修改用户信息失败' });
+            res.status(500).json({ code: 500, message: '修改用户信息失败' });
             return;
         }
-        res.json({ status: 0, message: '修改用户信息成功' });
+        res.json({ code: 200, message: '修改用户信息成功' });
     });
 });
 
@@ -74,15 +75,16 @@ router.post('/uploadPic', upload.single('file_data'), (req, res) => {
     // console.log(sqlStr);
     // 执行sql
     conn.query(sqlStr, (err, result) => {
-
+        // console.log(result);
+        // console.log(err);
         if (err) {
-            res.json({ status: 1, message: '服务器错误' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
-
     });
     // 上传成功
-    res.json({ status: 0, message: '上传图片成功', src: 'http://127.0.0.1:8080/uploads/' + req.file.originalname });
+    res.json({ code: 200, message: '上传图片成功', src: 'http://127.0.0.1:8080/uploads/' + req.file.originalname });
+
 });
 
 // 重置密码接口
@@ -96,13 +98,13 @@ router.post('/updatepwd', (req, res) => {
     // 执行sql
     conn.query(sqlStr, (err, result) => {
         if (err) {
-            res.json({ status: 1, message: '服务器错误' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
         // console.log(result[0].password); // 获取到旧密码
         // 判断用户的旧密码是否相等
         if (result[0].password != oldPwd) {
-            res.json({ status: 1, message: '你输入的旧密码不正确' });
+            res.json({ code: 201, message: '你输入的旧密码不正确' });
             return;
         }
         // 拼接sql语句去修改密码
@@ -111,9 +113,9 @@ router.post('/updatepwd', (req, res) => {
         // 执行sql修改
         conn.query(sqlStr2, (err, result) => {
             if (err) {
-                res.json({ status: 1, message: '修改密码失败' });
+                res.status(500).json({ code: 500, message: '修改密码失败' });
             }
-            res.json({ status: 0, message: '修改密码成功' });
+            res.json({ code: 200, message: '修改密码成功' });
         });
     });
 });

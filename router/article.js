@@ -15,12 +15,12 @@ router.get('/cates', (req, res) => {
     // 执行sql
     conn.query(sqlStr, (err, result) => {
         if (err) {
-            res.json({ status: 1, message: '获取文章失败' });
+            res.status(500).json({ code: 500, message: '获取文章失败' });
             return;
         }
         // 查看获取的数据
         // console.log(result);
-        res.json({ status: 0, message: '获取文章成功', data: result });
+        res.json({ code: 200, message: '获取文章成功', data: result });
     });
 });
 
@@ -35,12 +35,12 @@ router.post('/addcates', (req, res) => {
     // 执行sql
     conn.query(sqlStr, (err, result) => {
         if (err) {
-            res.json({ status: 1, message: '服务器错误' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
         // console.log(result);
         if (result.length > 0) {
-            res.json({ status: 1, message: '你添加的类别已经存在' });
+            res.json({ code: 201, message: '你添加的类别已经存在' });
             return;
         }
         // 如果不存在
@@ -50,9 +50,9 @@ router.post('/addcates', (req, res) => {
         // 执行sql
         conn.query(sqlStr2, (err, result) => {
             if (err) {
-                res.json({ status: 1, message: '新增类别失败' });
+                res.status(500).json({ code: 500, message: '服务器错误' });
             }
-            res.json({ status: 0, message: '新增类别成功' });
+            res.json({ code: 200, message: '新增类别成功' });
         });
     });
 
@@ -69,10 +69,10 @@ router.get('/deletecate', (req, res) => {
     // 执行sql
     conn.query(sqlStr, (err, result) => {
         if (err) {
-            res.json({ status: 1, message: '删除失败' });
+            res.json({ code: 201, message: '删除失败' });
             return;
         }
-        res.json({ status: 0, message: '删除成功' });
+        res.json({ code: 200, message: '删除成功' });
     });
 });
 
@@ -87,15 +87,15 @@ router.get('/getCatesById', (req, res) => {
     // 执行sql
     conn.query(sqlStr, (err, result) => {
         if (err) {
-            res.json({ status: 1, message: '服务器错误' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
         // console.log(result);
         if (result.length <= 0) {
-            res.json({ status: 1, message: '文章分类不存在' });
+            res.json({ code: 201, message: '文章分类不存在' });
             return;
         }
-        res.json({ status: 0, message: '获取成功', data: result });
+        res.json({ code: 200, message: '获取成功', data: result });
     });
 });
 
@@ -111,11 +111,11 @@ router.post('/updatecate', (req, res) => {
     conn.query(sqlStr, (err, result) => {
         // console.log(err);
         if (err) {
-            res.json({ status: 1, message: '更新分类数据失败' });
+            res.status(500).json({ code: 500, message: '服务器错误' });
             return;
         }
         // console.log(result);
-        res.json({ status: 0, message: '更新分类数据成功' });
+        res.json({ code: 200, message: '更新分类数据成功' });
     });
 });
 
