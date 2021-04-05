@@ -7,6 +7,24 @@ const conn = require('../utils/sql.js');
 // 下面的一句代码是实现获取post请求携带的普通键值对形式的参数
 router.use(express.urlencoded());
 
+// 引入multer模块 接收文件
+const multer = require('multer');
+// 精细化去设置，如何去保存文件
+const storage = multer.diskStorage({
+    // 保存在哪里
+    destination: function (req, file, cb) {
+        cb(null, 'uploads');
+    },
+    // 保存时，文件名叫什么
+    filename: function (req, file, cb) {
+        // console.log('file', file)
+        // 目标： 新名字是原来的名字
+        const fileName = file.originalname;
+        cb(null, fileName)
+    }
+});
+let upload = multer({ storage });
+
 // 获取文章分类列表接口
 router.get('/cates', (req, res) => {
     // 拼接sql语句
@@ -116,6 +134,75 @@ router.post('/updatecate', (req, res) => {
         }
         // console.log(result);
         res.json({ code: 200, message: '更新分类数据成功' });
+    });
+});
+
+// 文章搜索接口
+router.get('/query', (req, res) => {
+    // 获取传入的参数
+    // console.log(req.query);
+    const { key, type, state, page, perpage } = req.query;
+    // 拼接sql 什么都不传的情况
+    let sqlStr = `select * from articles`;
+    // 判断是否传入参数 拼接sql语句 注意语句前面要留一个空格
+    if (state) {
+        sqlStr += ` where state="${state}"`;
+    }
+    if (key) {
+        sqlStr += ` and title like "%${key}%"`;
+    }
+    if (type) {
+        sqlStr += ` and categoryId=${type}`;
+    }
+    console.log(sqlStr);
+    // 执行sql
+    conn.query(sqlStr, (err, result) => {
+        const num = result.length;
+        // console.log(num);
+        // console.log(err);
+        if (err) {
+            res.status(500).json({ code: 500, message: '服务器错误' })
+            return;
+        }
+        // console.log(result);
+        if (result == "") {
+            res.json({ code: 201, message: '没有获取到数据' });
+            return;
+        }
+
+        if (!perpage && !page) {
+            res.json({ code: 200, message: '获取成功', totalCount: result.length, totalPage: Math.ceil(num / 6), data: result });
+            return;
+        }
+        if (!page) {
+            res.json({ code: 200, message: '获取成功', totalCount: result.length, totalPage: Math.ceil(num / perpage), data: result });
+            return;
+        }
+        if (!perpage) {
+            res.json({ code: 200, message: '获取成功', totalCount: result.length, totalPage: Math.ceil(num / 6), data: result });
+            return;
+        }
+        res.json({ code: 200, message: '获取成功', totalCount: result.length, totalPage: Math.ceil(num / perpage), data: result });
+    });
+});
+
+// 发布文章接口
+router.post('/publish', upload.single('cover'), (req, res) => {
+    // 获取参数
+    // console.log(req.file);
+    // console.log(req.body);
+    const { title, categoryId, date, content, state } = req.body;
+    // // 拼接sql语句
+    const sqlStr = `insert into articles (title, cover, categoryId, date, content, state,isDelete,author) values ("${title}","http://127.0.0.1:8080/uploads/${req.file.originalname}","${categoryId}","${date}","${content}","${state}",0,"管理员")`;
+    // console.log(sqlStr);
+    // 执行sql
+    conn.query(sqlStr, (err, result) => {
+        console.log(err);
+        if (err) {
+            res.status(500).json({ code: 500, message: '服务器错误' })
+            return;
+        }
+        res.json({ code: 200, message: '发布成功' });
     });
 });
 

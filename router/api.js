@@ -47,8 +47,13 @@ router.post('/reguser', (req, res) => {
 // 登录接口
 router.post('/login', (req, res) => {
     // 获取用户传入的参数
-    console.log(req.body);
+    // console.log(req.body);
     const { username, password } = req.body;
+    // 判断如果不传值
+    if (!username || !password) {
+        res.json({ code: 201, message: '请输入用户名或者密码' });
+        return;
+    }
     // 拼接sql语句 查询 用户输入的用户名是否存在 密码是否正确
     const sqlStr = `select username, password from users where username="${username}" and password="${password}"`;
     // console.log(sqlStr);

@@ -194,6 +194,13 @@ router.get('/artitle', (req, res) => {
     });
 });
 
+// 发表评论接口
+router.post('/post_comment', (req, res) => {
+    // 获取参数
+    // console.log(req.body);
+    res.json({ code: 200, message: 'ok' });
+});
+
 
 // 导出路由中间件
 module.exports = router;
